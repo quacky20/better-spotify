@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "devStart": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@discord-player/extractor": "^7.1.0",
+    "body-parser": "^2.2.0",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "genius-lyrics": "^4.4.7",
+    "lyrics-finder": "^21.7.0",
+    "spotify-web-api-node": "^5.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

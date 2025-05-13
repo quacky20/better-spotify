@@ -1,11 +1,12 @@
-import './App.css'
-import Login from './Login.jsx'
+import Login from './components/Login.jsx'
+import Dashboard from './components/Dashboard.jsx'
+
+const code = new URLSearchParams(window.location.search).get('code')
+const token = localStorage.getItem('accessToken')
 
 function App() {
   return (
-    <>
-      <Login/>
-    </>
+    code||token ? <Dashboard code={code}/> : <Login/>
   )
 }
 
