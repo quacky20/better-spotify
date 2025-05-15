@@ -23,7 +23,7 @@ function useAuth(code){
         if (accessToken) return
         if (!code) return
 
-        axios.post('http://127.0.0.1:3001/login' , {
+        axios.post(`${import.meta.env.VITE_BACKEND_URL}/login` , {
             code
         })
         .then(res => {
@@ -49,7 +49,7 @@ function useAuth(code){
         if (!refreshToken || !expiresIn) return
 
         const interval = setInterval(() => {
-            axios.post('http://127.0.0.1:3001/refresh' , {
+            axios.post(`${import.meta.env.VITE_BACKEND_URL}/refresh` , {
             refreshToken
             })
             .then(res => {
