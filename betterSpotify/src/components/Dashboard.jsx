@@ -37,7 +37,7 @@ function Dashboard({code}){
     useEffect(() => {
         if (!playingTrack) return
 
-        axios.get('http://127.0.0.1:3001/lyrics',{
+        axios.get(`${import.meta.env.VITE_BACKEND_URL}/lyrics`,{
             params: {
                 track: playingTrack.title,
                 artist: playingTrack.artist
