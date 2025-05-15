@@ -40,7 +40,7 @@ function useAuth(code){
         })
         .catch(err => {
             console.log(err)
-            // window.location = '/'
+            window.location = '/'
         })
     }, [code]) 
 
@@ -62,7 +62,7 @@ function useAuth(code){
                 localStorage.setItem("expiresIn", res.data.expiresIn)
             })
             .catch(err => {
-                // window.location = '/'
+                window.location = '/'
             })
         }, (expiresIn - 60) * 1000)
 
