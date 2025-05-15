@@ -27,7 +27,7 @@ function useAuth(code){
             code
         })
         .then(res => {
-            // window.history.pushState({}, null, "/")
+            window.history.pushState({}, null, "/")
             setAccessToken(res.data.accessToken)
             setRefreshToken(res.data.refreshToken)
             setExpiresIn(res.data.expiresIn)
@@ -55,7 +55,7 @@ function useAuth(code){
             .then(res => {
                 console.log(refreshToken)
                 // console.log(res.data)
-                // window.history.pushState({}, null, "/")
+                window.history.pushState({}, null, "/")
                 setAccessToken(res.data.accessToken)
                 setExpiresIn(res.data.expiresIn)
                 localStorage.setItem("accessToken", res.data.accessToken)
