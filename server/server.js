@@ -7,7 +7,9 @@ const Genius = require('genius-lyrics')
 const Client = new Genius.Client(process.env.GENIUS_TOKEN)
 
 const app = express()
-app.use(cors())
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*'
+}));
 app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -83,6 +85,7 @@ app.get('/lyrics', async (req, res) => {
     res.json({ lyrics });
 })
 
-app.listen(3001, '127.0.0.1', () => {
-    console.log('Server running on http://127.0.0.1:3001');
-})
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
