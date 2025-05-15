@@ -4,7 +4,7 @@ const SpotifyWebApi = require('spotify-web-api-node')
 const bodyParser = require('body-parser')
 require('dotenv').config();
 const Genius = require('genius-lyrics')
-const Client = new Genius.Client(process.env.GENIUS_TOKEN)
+const Client = new Genius.Client()
 
 const app = express()
 app.use(cors({
