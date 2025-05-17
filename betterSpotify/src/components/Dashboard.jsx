@@ -24,6 +24,12 @@ function Dashboard({code}){
     const [currentView, setCurrentView] = useState("home")
     const [currentPlaylistId, setCurrentPlaylistId] = useState(null)
     const profileRef = useRef(null)
+    const [userProfile, setUserProfile] = useState(null)
+    const [showProfileMenu, setShowProfileMenu] = useState(false)
+    const [moodInput, setMoodInput] = useState("")
+    const [moodSuggestions, setMoodSuggestions] = useState([])
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+    const [detectedMood, setDetectedMood] = useState("")
 
     function handlePlaylistClick(playlistId) {
         setCurrentPlaylistId(playlistId)
@@ -42,6 +48,59 @@ function Dashboard({code}){
 
     function toggleLogOut() {
         setShowLogout(!showLogout)
+    }
+
+    function toggleProfileView() {
+        setShowProfileMenu(!showProfileMenu)
+    }
+
+    function handleSettings() {
+        console.log("Setting clicked")
+        setShowProfileMenu(false)
+    }
+
+    async function getMoodBasedSuggestions() {
+        if (!moodInput.trim()) return
+
+        setIsLoadingSuggestions(true)
+
+        try{
+            const response = await axios.post(`${import.meta.env.VITE_MLBACKEND_URL}/mood-suggestions`, {
+                moodDescription: moodInput,
+                accessToken: accessToken
+            })
+
+            setMoodSuggestions(response.data.tracks)
+            setDetectedMood(response.data.detectedMood)
+        }
+        catch(err) {
+            console.error("Error getting mood suggestions: ", err)
+            setMoodSuggestions([])
+        }
+        finally {
+            setIsLoadingSuggestions(false)
+        }
+    }
+
+    async function createMoodPlaylist() {
+        if (moodSuggestions.length === 0) return
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_MLBACKEND_URL}/create-playlist`, {
+                accessToken: accessToken,
+                trackUris: moodSuggestions.map(track => track.uri),
+                name: `${detectedMood} Mood - ${new Date().toLocaleDateString()}`,
+                description: `Songs for when you're feeling: ${moodInput}`
+            })
+
+            alert("Playlist created successfully!")
+
+            handleBacktoHome()
+        }
+        catch(err) {
+            console.error("Error creating playlist: ", err)
+            alert("Failed to create playlist. Please try again.")
+        }
     }
 
     useEffect(() => {
@@ -90,6 +149,16 @@ function Dashboard({code}){
     useEffect(()=>{
         if (!accessToken) return
         spotifyAPI.setAccessToken(accessToken)
+
+        spotifyAPI.getMe().then(data => {
+            setUserProfile({
+                name: data.body.display_name,
+                image: data.body.images?.length > 0 ? data.body.images[0].url : null,
+                id: data.body.id
+            })
+        }).catch(err => {
+            console.error("Error fetching user profile: ", err)
+        })
     }, [accessToken])
 
     useEffect(()=>{
@@ -124,13 +193,110 @@ function Dashboard({code}){
         <>
             <div className="flex flex-col md:flex-row w-screen h-screen bg-gradient-to-t from-teal-900 to-gray-900 pb-24">
                 {/* Normal Logout button */}
-                <div className="hidden md:block h-auto md:w-1/3">
-                    <button
+                <div className="hidden md:block h-auto md:w-1/3 m-5">
+                    {/* <button
                     onClick={handleLogout}
                     className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 mt-4 m-4"
                     >
                         Log Out
-                    </button>
+                    </button> */}
+                    <div ref={profileRef} className="flex items-center justify-between bg-gray-800/30 backdrop-blur-3xl rounded-3xl p-4 mb-4">
+                        <div className="flex items-center">
+                            <div
+                                className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden cursor-pointer"
+                                onClick={toggleProfileView}
+                            >
+                                {userProfile?.image ? (
+                                    <img src={userProfile.image} alt="Profile" className="w-full h-full object-cover"/>
+                                ) : (
+                                    <svg className="h-8 w-8 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                    </svg>
+                                )}
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-white font-medium">
+                                    {`Hello ${userProfile?.name}` || "Loading..."}
+                                </p>
+                            </div>
+                        </div>
+
+                        {showProfileMenu && (
+                            <div className="absolute top-20 left-8 bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
+                                    onClick={handleSettings}
+                                >
+                                    Settings
+                                </button>
+                                <button
+                                    className="block w-full text-left px-4 py-2 text-red-400 hover:bg-gray-700"
+                                    onClick={handleLogout}
+                                >
+                                    Log Out
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Mood chat section */}
+                    <div className=" flex-1 bg-gray-800/20 backdrop-blur-3xl rounded-3xl flex flex-col w-full p-5">
+                        <h2 className="text-white text-xl font-semibold mb-4">Music Mood Finder</h2>
+                        <div className="flex-1 overflow-y-auto mb-4">
+                            {detectedMood && (
+                                <div className="mb-3 bg-teal-900/40 p-3 rounded-lg">
+                                    <p className="text-white">
+                                        Detected mood: <span className="font-bold">{detectedMood}</span>
+                                    </p>
+                                </div>
+                            )}
+
+                            {isLoadingSuggestions && (
+                                <div className="flex justify-center items-center my-4">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                                </div>
+                            )}
+
+                            {moodSuggestions.length > 0 && (
+                                <div className="mb-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-white font-medium">Suggested songs</h3>
+                                        <button
+                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm"
+                                        onClick={createMoodPlaylist}
+                                        >
+                                            Create Playlist
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {moodSuggestions.map((track, index) => (
+                                            <TrackSearchResults 
+                                                track={track} 
+                                                key={track.uri || index} 
+                                                chooseTrack={chooseTrack}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="mt-auto">
+                            <textarea
+                                className="w-full p-3 bg-gray-700/60 text-white rounded-lg focus:outline-none focus:rind-2 focus:ring-green-500 resize-none"
+                                placeholder="How are you feeling today? Describe your mood..."
+                                rows="3"
+                                value={moodInput}
+                                onChange={(e) => setMoodInput(e.target.value)}
+                            ></textarea>
+                            <button
+                                className="w-full mt-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                                onClick={getMoodBasedSuggestions}
+                                disabled={isLoadingSuggestions}
+                            >
+                                {isLoadingSuggestions ? "Finding songs..." : "Get Song Recommendations"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Center section */}
@@ -281,6 +447,86 @@ function Dashboard({code}){
                 )}
 
             </div>
+
+            {/* Mobile Mood Chat Settings */}
+            <button
+                className="md:hidden fixed bottom-24 right-4 z-40 bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                onClick={() => document.getElementById('moodModal').classList.remove('hidden')}
+            >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+            </button>
+            
+            <div id="moodModal" className="hidden fixed inset-0 z-50 bg-gray-900/95 md:hidden">
+                <div className="h-full flex flex-col p-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-white text-xl font-bold">Music Mood Finder</h2>
+                        <button 
+                            onClick={() => document.getElementById('moodModal').classList.add('hidden')}
+                            className="text-white text-2xl font-bold"
+                        >
+                            ×
+                        </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto mb-4">
+                        {detectedMood && (
+                                <div className="mb-3 bg-teal-900/40 p-3 rounded-lg">
+                                    <p className="text-white">Detected mood: <span className="font-bold">{detectedMood}</span></p>
+                                </div>
+                            )}
+                            
+                            {isLoadingSuggestions && (
+                                <div className="flex justify-center items-center my-4">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                                </div>
+                            )}
+
+                            {moodSuggestions.length > 0 && (
+                                <div className="mb-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-white font-medium">Suggested Songs</h3>
+                                        <button 
+                                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm"
+                                            onClick={createMoodPlaylist}
+                                        >
+                                            Create Playlist
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {moodSuggestions.map((track, index) => (
+                                            <TrackSearchResults 
+                                                track={track} 
+                                                key={track.uri || index} 
+                                                chooseTrack={(track) => {
+                                                    chooseTrack(track);
+                                                    document.getElementById('moodModal').classList.add('hidden');
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                    </div>
+                    <div className="mt-auto">
+                        <textarea
+                            className="w-full p-3 bg-gray-700/60text-white rounded-lg focus:outline-nonefocus:ring-2 focus:ring-green-500resize-none"
+                            placeholder="How are you feeling today?Describe your mood..."
+                            rows="3"
+                            value={moodInput}
+                            onChange={(e) => setMoodInput(e.target.value)}
+                        ></textarea>
+                        <button
+                            className="w-full mt-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                            onClick={getMoodBasedSuggestions}
+                            disabled={isLoadingSuggestions}
+                        >
+                            {isLoadingSuggestions ? "Finding songs..." : "Get Song Recommendations"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
 
             {/* Player Component */}
             <div className="fixed bottom-0 left-0 right-0 z-40">
