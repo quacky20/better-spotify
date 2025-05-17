@@ -4,6 +4,8 @@ import SpotifyWebApi from "spotify-web-api-node";
 import TrackSearchResults from './TrackSearchResults.jsx'
 import Player from "./Player.jsx"
 import axios from "axios";
+import PlaylistSection from "./PlaylistSection.jsx";
+import PlaylistPage from "./PlaylistPage.jsx";
 
 const spotifyAPI = new SpotifyWebApi({
     clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID
@@ -19,7 +21,20 @@ function Dashboard({code}){
     const [lyrics, setLyrics] = useState("Play a song and the lyrics will show up here")
     const [showLyrics, setShowLyrics] = useState(false)
     const [showLogout, setShowLogout] = useState(false)
+    const [currentView, setCurrentView] = useState("home")
+    const [currentPlaylistId, setCurrentPlaylistId] = useState(null)
     const profileRef = useRef(null)
+
+    function handlePlaylistClick(playlistId) {
+        setCurrentPlaylistId(playlistId)
+        setCurrentView("playlist")
+        setSearch("")
+    }
+
+    function handleBacktoHome(){
+        setCurrentView("home")
+        setCurrentPlaylistId(null)
+    }
 
     function toggleLyrics() {
         setShowLyrics(!showLyrics);
@@ -120,7 +135,8 @@ function Dashboard({code}){
 
                 {/* Center section */}
                 <div className="flex items-center flex-col h-full w-full md:w-1/3 px-4 md:px-0">
-                    <div className={`flex flex-col w-full rounded-3xl bg-gray-800/20 backdrop-blur-3xl shadow-md mt-5 transition-all duration-300 &{search === "" ? "min-h-min" : "flex-1 min-h-0"} max-h-[calc(100%-2.5rem)]`}>
+                    {/* <div className={`flex flex-col w-full rounded-3xl bg-gray-800/20 backdrop-blur-3xl shadow-md mt-5 transition-all duration-300 &{search === "" ? "min-h-min" : "flex-1 min-h-0"} max-h-[calc(100%-2.5rem)]`}> */}
+                    <div className={`max-h-[calc(100%-2.5rem)] w-full rounded-3xl bg-gray-800/20 backdrop-blur-3xl shadow-md transition-all duration-300 m-5`}>
                         <div className="relative flex items-center px-4 py-2">
                             <div ref={profileRef} className="md:hidden relative">
                                 <button
@@ -141,6 +157,31 @@ function Dashboard({code}){
                                     </div>
                                 )}
                             </div>
+                            {/* Home button - only on mobile */}
+                            {currentView === "playlist" && (
+                                <button
+                                    onClick={handleBacktoHome}
+                                    className="md:hidden w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center mr-2"
+                                >
+                                    {/* Home icon */}
+                                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                </button>
+                            )}
+                            
+                            {/* Home button - when on playlist page */}
+                            {currentView === "home" && (
+                                <button
+                                    onClick={handleBacktoHome}
+                                    className="md:hidden w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center mr-2"
+                                >
+                                    {/* Home icon */}
+                                    <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                </button>
+                            )}
 
                             <input
                             type="text"
@@ -159,8 +200,10 @@ function Dashboard({code}){
                                 </svg>
                             </button>
                         </div>
+
+
                         
-                        <div className="grow-1 my-2 overflow-y-auto mx-4"
+                        {/* <div className="grow-1 my-2 overflow-y-auto mx-4"
                             style={{
                                 scrollbarWidth: "none",
                                 msOverflowStyle: "none",
@@ -169,6 +212,40 @@ function Dashboard({code}){
                             {searchResults.map(track => (
                                 <TrackSearchResults track={track} key={track.uri} chooseTrack={chooseTrack}/>
                             ))}
+                        </div> */}
+
+                        <div className="w-full overflow-hidden">
+                            {/* Search Results */}
+                            {search !== "" && (
+                                <div className="bg-gray-800/20 backdrop-blur-3xl rounded-3xl overflow-hidden">
+                                    <div className="max-h-64 overflow-y-auto py-2 px-4"
+                                    style={{
+                                        scrollbarWidth: 'none',
+                                        msOverflowStyle: 'none',
+                                    }}>
+                                        {searchResults.map(track => (
+                                            <TrackSearchResults track={track} key={track.uri} chooseTrack={chooseTrack}/>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {/* Playlist Section - only when search is empty and on home view */}
+                                {search === "" && currentView === "home" && (
+                                    <PlaylistSection 
+                                        accessToken={accessToken}
+                                        onPlaylistClick={handlePlaylistClick}
+                                    />
+                                )}
+                                
+                                {/* Playlist Page - when viewing a specific playlist */}
+                                {currentView === "playlist" && (
+                                    <PlaylistPage
+                                        accessToken={accessToken}
+                                        playlistId={currentPlaylistId}
+                                        onBackClick={handleBacktoHome}
+                                        onChooseTrack={chooseTrack}
+                                    />
+                                )}
                         </div>
                     </div>
                 </div>
@@ -207,7 +284,7 @@ function Dashboard({code}){
 
             {/* Player Component */}
             <div className="fixed bottom-0 left-0 right-0 z-40">
-                <div className="mx-4 md:mx-auto md:max-w-lg bg-gray-800/20 backdrop-blur-3xl rounded-3xl p-2 shadow-lg">
+                <div className="mx-4 md:mx-auto md:max-w-full bg-gray-800/20 backdrop-blur-3xl rounded-3xl p-2 shadow-lg">
                     <Player accessToken={accessToken} track={ playingTrack }/>
                 </div>
             </div>
