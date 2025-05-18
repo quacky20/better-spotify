@@ -5,6 +5,11 @@ function PlaylistSection({ accessToken, onPlaylistClick }) {
     const [playlists, setPlaylists] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [playlistRefreshTrigger, setPlaylistRefreshTrigger] = useState(0);
+
+    function refreshPlaylists(){
+        setPlaylistRefreshTrigger(prev => prev + 1)
+    }
 
     useEffect(() => {
         if (!accessToken) return
@@ -34,7 +39,7 @@ function PlaylistSection({ accessToken, onPlaylistClick }) {
         }
 
         fetchPlaylists()
-    }, [accessToken])
+    }, [accessToken, playlistRefreshTrigger])
 
     if (loading) {
         return(
@@ -65,7 +70,20 @@ function PlaylistSection({ accessToken, onPlaylistClick }) {
 
     return (
         <div className="w-full py-4 px-4">
-            <h2 className="text-white text-xl font-bold mb-4 px-2">Your Playlists</h2>
+            <div>
+                <div className="flex justify-between items-center px-4 py-2">
+                    <h2 className="text-white text-xl font-semibold">Your Playlists</h2>
+                    <button 
+                        onClick={refreshPlaylists}
+                        className="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-full"
+                        title="Refresh playlists"
+                    >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-2 max-h-[calc(100vh-19.5rem)] overflow-y-auto"
                 style={{
                     scrollbarWidth: 'none',

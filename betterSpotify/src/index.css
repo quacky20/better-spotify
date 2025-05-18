@@ -1,1 +1,17 @@
 @import "tailwindcss";
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  background: linear-gradient(to top, #135e59, #131631);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}

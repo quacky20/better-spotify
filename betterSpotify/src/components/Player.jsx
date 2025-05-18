@@ -15,6 +15,7 @@ function Player({ accessToken, track }){
         <>
             <div>
                 <SpotifyPlayer 
+                name="Better-Spotify"
                 token={accessToken}
                 showSaveIcon
                 callback={state => {

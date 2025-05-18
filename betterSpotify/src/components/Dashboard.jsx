@@ -24,12 +24,15 @@ function Dashboard({code}){
     const [currentView, setCurrentView] = useState("home")
     const [currentPlaylistId, setCurrentPlaylistId] = useState(null)
     const profileRef = useRef(null)
+    const mobileProfileRef = useRef(null)
+    const desktopProfileRef = useRef(null)
     const [userProfile, setUserProfile] = useState(null)
     const [showProfileMenu, setShowProfileMenu] = useState(false)
     const [moodInput, setMoodInput] = useState("")
     const [moodSuggestions, setMoodSuggestions] = useState([])
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
     const [detectedMood, setDetectedMood] = useState("")
+
 
     function handlePlaylistClick(playlistId) {
         setCurrentPlaylistId(playlistId)
@@ -105,8 +108,14 @@ function Dashboard({code}){
 
     useEffect(() => {
         function handleOutsideClick(event) {
-            if(profileRef.current && !profileRef.current.contains(event.target)){
-                setShowLogout(false)
+            if (profileRef.current && 
+                !profileRef.current.contains(event.target) && 
+                desktopProfileRef.current && 
+                !desktopProfileRef.current.contains(event.target)) {
+                setShowProfileMenu(false);
+            }
+            if (mobileProfileRef.current && !mobileProfileRef.current.contains(event.target)) {
+            setShowLogout(false);
             }
         }
 
@@ -191,7 +200,7 @@ function Dashboard({code}){
 
     return(
         <>
-            <div className="flex flex-col md:flex-row w-screen h-screen bg-gradient-to-t from-teal-900 to-gray-900 pb-24">
+            <div className="flex flex-col md:flex-row w-screen h-screen pb-24">
                 {/* Normal Logout button */}
                 <div className="hidden md:block h-auto md:w-1/3 m-5">
                     {/* <button
@@ -200,7 +209,7 @@ function Dashboard({code}){
                     >
                         Log Out
                     </button> */}
-                    <div ref={profileRef} className="flex items-center justify-between bg-gray-800/30 backdrop-blur-3xl rounded-3xl p-4 mb-4">
+                    <div ref={profileRef} className="relative flex items-center justify-between bg-gray-800/30 backdrop-blur-3xl rounded-3xl p-4 mb-4 z-[100]">
                         <div className="flex items-center">
                             <div
                                 className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden cursor-pointer"
@@ -222,7 +231,7 @@ function Dashboard({code}){
                         </div>
 
                         {showProfileMenu && (
-                            <div className="absolute top-20 left-8 bg-gray-800 rounded-lg shadow-lg py-2 z-50">
+                            <div ref={desktopProfileRef} className="absolute top-20 left-8 bg-gray-800 rounded-lg shadow-lg py-2">
                                 <button
                                     className="block w-full text-left px-4 py-2 text-white hover:bg-gray-700"
                                     onClick={handleSettings}
@@ -240,9 +249,14 @@ function Dashboard({code}){
                     </div>
 
                     {/* Mood chat section */}
-                    <div className=" flex-1 bg-gray-800/20 backdrop-blur-3xl rounded-3xl flex flex-col w-full p-5">
+                    <div className="relative flex-1 bg-gray-800/20 backdrop-blur-3xl rounded-3xl flex flex-col w-full p-5 max-h-[calc(100%-6rem)] shadow-lg z-10">
                         <h2 className="text-white text-xl font-semibold mb-4">Music Mood Finder</h2>
-                        <div className="flex-1 overflow-y-auto mb-4">
+                        <div className="flex-1 overflow-y-auto mb-4 overflow-x-hidden"
+                            style={{
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                        }}
+                        >
                             {detectedMood && (
                                 <div className="mb-3 bg-teal-900/40 p-3 rounded-lg">
                                     <p className="text-white">
@@ -304,7 +318,7 @@ function Dashboard({code}){
                     {/* <div className={`flex flex-col w-full rounded-3xl bg-gray-800/20 backdrop-blur-3xl shadow-md mt-5 transition-all duration-300 &{search === "" ? "min-h-min" : "flex-1 min-h-0"} max-h-[calc(100%-2.5rem)]`}> */}
                     <div className={`max-h-[calc(100%-2.5rem)] w-full rounded-3xl bg-gray-800/20 backdrop-blur-3xl shadow-md transition-all duration-300 m-5`}>
                         <div className="relative flex items-center px-4 py-2">
-                            <div ref={profileRef} className="md:hidden relative">
+                            <div ref={mobileProfileRef} className="md:hidden relative">
                                 <button
                                     onClick={toggleLogOut}
                                     className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden mr-2"
@@ -450,7 +464,7 @@ function Dashboard({code}){
 
             {/* Mobile Mood Chat Settings */}
             <button
-                className="md:hidden fixed bottom-24 right-4 z-40 bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                className="md:hidden fixed bottom-24 right-4 z-50 bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
                 onClick={() => document.getElementById('moodModal').classList.remove('hidden')}
             >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -458,7 +472,7 @@ function Dashboard({code}){
                     </svg>
             </button>
             
-            <div id="moodModal" className="hidden fixed inset-0 z-50 bg-gray-900/95 md:hidden">
+            <div id="moodModal" className="hidden fixed inset-0 z-50 bg-gray-900/60 md:hidden overflow-hidden backdrop-blur-xl">
                 <div className="h-full flex flex-col p-4">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-white text-xl font-bold">Music Mood Finder</h2>
@@ -469,7 +483,12 @@ function Dashboard({code}){
                             ×
                         </button>
                     </div>
-                    <div className="flex-1 overflow-y-auto mb-4">
+                    <div className="flex-1 overflow-y-auto mb-4 overflow-x-hidden"
+                        style={{
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                        }}
+                    >
                         {detectedMood && (
                                 <div className="mb-3 bg-teal-900/40 p-3 rounded-lg">
                                     <p className="text-white">Detected mood: <span className="font-bold">{detectedMood}</span></p>
@@ -510,7 +529,7 @@ function Dashboard({code}){
                     </div>
                     <div className="mt-auto">
                         <textarea
-                            className="w-full p-3 bg-gray-700/60text-white rounded-lg focus:outline-nonefocus:ring-2 focus:ring-green-500resize-none"
+                            className="w-full p-3 bg-gray-700/60 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                             placeholder="How are you feeling today?Describe your mood..."
                             rows="3"
                             value={moodInput}
