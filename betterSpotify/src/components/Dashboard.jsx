@@ -241,7 +241,7 @@ function Dashboard({code}){
                     >
                         Log Out
                     </button> */}
-                    <div ref={profileRef} className="relative flex items-center justify-between bg-gray-800/30 backdrop-blur-3xl rounded-3xl p-4 mb-4 z-[100]">
+                    <div ref={profileRef} className="relative flex items-center justify-between bg-gray-800/30 backdrop-blur-3xl rounded-3xl p-4 mb-4 z-[30]">
                         <div className="flex items-center">
                             <div
                                 className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden cursor-pointer"
