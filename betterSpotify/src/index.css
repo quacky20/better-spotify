@@ -1,4 +1,17 @@
 @import "tailwindcss";
+
+:root {
+  --gradient-color-1: #135e59;
+  --gradient-color-2: #131631;
+  --accent-color: #0fba3a;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -7,7 +20,8 @@ body::before {
   height: 100%;
   width: 100%;
   z-index: -1;
-  background: linear-gradient(to top, #135e59, #131631);
+  background: linear-gradient(135deg, var(--gradient-color-1) 0%, var(--gradient-color-2) 100%);
+  /* background: linear-gradient(to top, #135e59, #131631); */
 }
 
 body {

@@ -6,6 +6,7 @@ import Player from "./Player.jsx"
 import axios from "axios";
 import PlaylistSection from "./PlaylistSection.jsx";
 import PlaylistPage from "./PlaylistPage.jsx";
+import Settings from "./Settings.jsx";
 
 const spotifyAPI = new SpotifyWebApi({
     clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID
@@ -32,7 +33,12 @@ function Dashboard({code}){
     const [moodSuggestions, setMoodSuggestions] = useState([])
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
     const [detectedMood, setDetectedMood] = useState("")
-
+    const [showSettings, setShowSettings] = useState(false)
+    const [appSettings, setAppSettings] = useState({
+        gradientColor1: "#0f172a",
+        gradientColor2: "#1e293b",
+        accentColor: "#10b981"
+    })
 
     function handlePlaylistClick(playlistId) {
         setCurrentPlaylistId(playlistId)
@@ -58,7 +64,7 @@ function Dashboard({code}){
     }
 
     function handleSettings() {
-        console.log("Setting clicked")
+        setShowSettings(true)
         setShowProfileMenu(false)
     }
 
@@ -198,6 +204,32 @@ function Dashboard({code}){
         return () => cancel = true
     }, [accessToken, search])
 
+    useEffect(() => {
+        const savedSettings = JSON.parse(localStorage.getItem('appSettings') || '{}')
+        if (Object.keys(savedSettings).length>0) {
+            setAppSettings(savedSettings)
+
+            if (savedSettings.accentColor) {
+            document.documentElement.style.setProperty('--accent-color', savedSettings.accentColor);
+            }
+            if (savedSettings.gradientColor1) {
+            document.documentElement.style.setProperty('--gradient-color-1', savedSettings.gradientColor1);
+            }
+            if (savedSettings.gradientColor2) {
+            document.documentElement.style.setProperty('--gradient-color-2', savedSettings.gradientColor2);
+            }
+        }
+    })
+
+    function handleSaveSettings(newSettings) {
+        setAppSettings(newSettings);
+        
+        // Apply all theme colors as CSS variables
+        document.documentElement.style.setProperty('--accent-color', newSettings.accentColor);
+        document.documentElement.style.setProperty('--gradient-color-1', newSettings.gradientColor1);
+        document.documentElement.style.setProperty('--gradient-color-2', newSettings.gradientColor2);
+    }
+
     return(
         <>
             <div className="flex flex-col md:flex-row w-screen h-screen pb-24">
@@ -276,7 +308,10 @@ function Dashboard({code}){
                                     <div className="flex justify-between items-center mb-2">
                                         <h3 className="text-white font-medium">Suggested songs</h3>
                                         <button
-                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm"
+                                        className="text-white px-3 py-1 rounded-full text-sm"
+                                        style={{
+                                            backgroundColor: 'var(--accent-color)', ':hover': { filter: 'brightness(90%)' }
+                                        }}
                                         onClick={createMoodPlaylist}
                                         >
                                             Create Playlist
@@ -303,7 +338,8 @@ function Dashboard({code}){
                                 onChange={(e) => setMoodInput(e.target.value)}
                             ></textarea>
                             <button
-                                className="w-full mt-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                                className="w-full mt-2 py-2 text-white rounded-lg transition-colors duration-200"
+                                style={{ backgroundColor: 'var(--accent-color)', ':hover': { filter: 'brightness(90%)' }}}
                                 onClick={getMoodBasedSuggestions}
                                 disabled={isLoadingSuggestions}
                             >
@@ -330,6 +366,12 @@ function Dashboard({code}){
 
                                 {showLogout && (
                                     <div className="absolute top-12 left-0 bg-white rounded-lg shadow-lg py-2 px-4 z-50">
+                                        <button
+                                            className="text-black font-medium whitespace-nowrap mb-2"
+                                            onClick={handleSettings}
+                                        >
+                                            Settings
+                                        </button>
                                         <button className="text-red-600 font-medium whitespace-nowrap"
                                         onClick={handleLogout}>
                                             Log Out
@@ -373,7 +415,10 @@ function Dashboard({code}){
 
                             <button
                                 onClick={toggleLyrics}
-                                className="md:hidden w-10 h-10 rounded-full bg-green-600 flex items-center justify-center ml-2"
+                                className="md:hidden w-10 h-10 rounded-full flex items-center justify-center ml-2"
+                                style={{
+                                    backgroundColor: 'var(--accent-color)'
+                                }}
                             >
                                 <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
@@ -464,7 +509,8 @@ function Dashboard({code}){
 
             {/* Mobile Mood Chat Settings */}
             <button
-                className="md:hidden fixed bottom-24 right-4 z-50 bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                className="md:hidden fixed bottom-24 right-4 z-50 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                style={{backgroundColor: 'var(--accent-color)'}}
                 onClick={() => document.getElementById('moodModal').classList.remove('hidden')}
             >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -506,7 +552,8 @@ function Dashboard({code}){
                                     <div className="flex justify-between items-center mb-2">
                                         <h3 className="text-white font-medium">Suggested Songs</h3>
                                         <button 
-                                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full text-sm"
+                                            className="text-white px-3 py-1 rounded-full text-sm"
+                                            style={{backgroundColor: 'var(--accent-color)', ':hover': { filter: 'brightness(90%)' }}}
                                             onClick={createMoodPlaylist}
                                         >
                                             Create Playlist
@@ -536,7 +583,8 @@ function Dashboard({code}){
                             onChange={(e) => setMoodInput(e.target.value)}
                         ></textarea>
                         <button
-                            className="w-full mt-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
+                            className="w-full mt-2 py-2 text-white rounded-lg transition-colors duration-200"
+                            style={{backgroundColor: 'var(--accent-color)', ':hover': { filter: 'brightness(90%)' }}}
                             onClick={getMoodBasedSuggestions}
                             disabled={isLoadingSuggestions}
                         >
@@ -553,6 +601,11 @@ function Dashboard({code}){
                     <Player accessToken={accessToken} track={ playingTrack }/>
                 </div>
             </div>
+            <Settings 
+                isOpen={showSettings} 
+                onClose={() => setShowSettings(false)} 
+                onSaveSettings={handleSaveSettings} 
+            />
         </>
     )
 }

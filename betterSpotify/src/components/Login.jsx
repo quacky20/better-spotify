@@ -8,7 +8,10 @@ const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${clientId}&r
 function Login(){
     return(
         <div className="flex flex-wrap w-full h-screen justify-center center items-center">
-            <a className="bg-green-600 p-5 rounded-full text-white border-2 border-black"
+            <a className="p-5 rounded-full text-white border-2 border-black"
+            style={{
+                backgroundColor: 'var(--accent-color)'
+            }}
             href={AUTH_URL}
             >
                 Login with Spotify
