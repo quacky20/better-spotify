@@ -1,16 +1,33 @@
 
-# 🎵 **Better Spotify**
+# 🎵 **Moodify**
 
-Better Spotify is a web application that allows you to search for songs, play them using the Spotify API, and instantly view song lyrics fetched from Genius. It provides a **dark mode** interface with sleek **blur effects** to enhance your listening experience.
+Moodify is a sleek, AI-powered web app that reimagines Spotify — tailored to your mood and musical preferences. It allows you to:
+
+🔍 Search for songs using the Spotify API
+
+🎵 Play tracks (Spotify Premium required)
+
+📝 Instantly view lyrics powered by Genius
+
+💡 Get AI-powered song recommendations based on your mood
+
+📁 Create new playlists from recommendations
+
+💖 View and manage your saved playlists
+
+🎨 Personalize your interface with custom themes
+
+🌑 Enjoy a beautifully crafted dark mode UI with blurred, rounded, modern design
 
 ---
 
 ## 🛠 **Tech Stack**
 
 - **Frontend**: React, Tailwind CSS, Vite  
-- **Backend**: Node.js, Express  
+- **Backend**: Node.js, Express, Python, Flask, Langchain, Spotipy
+- **LLM**: Groq API (Mistral Saba 24B)
 - **APIs**: Spotify API, Genius API  
-- **Other**: Axios
+- **Other**: Axios, Pydantic, dotenv
 
 ---
 
@@ -29,14 +46,14 @@ git clone https://github.com/yourusername/better-spotify.git
 #### Frontend (React):  
 Navigate to the frontend folder and install the necessary dependencies:
 ```bash
-cd server
+cd betterSpotify
 npm install
 ```
 
 #### Backend (Express):  
 Navigate to the backend folder and install the necessary dependencies:
 ```bash
-cd betterSpotify
+cd server
 npm install
 ```
 
@@ -47,6 +64,9 @@ In both the frontend and backend folders, you will need to add the necessary API
 Inside the `betterSpotify` folder, create a `.env` file and add:
 ```env
 VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id
+VITE_SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173
+VITE_BACKEND_URL=http://127.0.0.1:3001
+VITE_MLBACKEND_URL=http://127.0.0.1:5000
 ```
 
 #### Backend:  
@@ -56,9 +76,10 @@ SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
 SPOTIFY_REDIRECT_URI=http://127.0.0.1:5173
 GENIUS_ACCESS_TOKEN=your_genius_access_token
+FRONTEND_URL=http://127.0.0.1:5173
 ```
 
-Replace `your_spotify_client_id`, `your_spotify_client_secret`, and `your_genius_access_token` with your actual API credentials.
+Replace `your_spotify_client_id`, `your_spotify_client_secret`, and `your_genius_access_token` with your actual API credentials. Change the URLs according to your setup.
 
 ---
 
@@ -78,14 +99,30 @@ npm run devStart
 ```
 This will start the Express server at `http://127.0.0.1:3001`.
 
+### Running the AI Agent Backend  
+In the `MLBackend` folder, run:
+```bash
+python app.py
+```
+This will start the Flask server at `http://127.0.0.1:5000`.
+
 ---
 
 ## 💡 **Features**
 
-- **Spotify Login**: Sign in using your Spotify account. 🎧  
-- **Search and Play**: Search for songs and play them directly from the Spotify catalog. 🔍🎶  
-- **Instant Lyrics**: View the lyrics for the currently playing song in real-time from Genius. 📝  
-- **Dark Mode UI**: A sleek dark mode interface with beautiful blur effects for a modern user experience. 🌑✨
+- **Spotify Login**: Securely sign in with your Spotify account to access your playlists and playback. 🎧
+
+- **Search & Play**: Instantly search the entire Spotify catalog and play songs (requires Spotify Premium). 🔍🎶
+
+- **Real-Time Lyrics**: View live song lyrics pulled directly from Genius as your music plays. 📝
+
+- **Mood-Based AI Recommendations**: Get smart, mood-aware song suggestions powered by AI — and add them to a playlist in one click. 🤖🎵
+
+- **Playlist Management**: Browse and manage your saved playlists or create new ones from recommended tracks. 📁💖
+
+- **Custom Themes**: Personalize your experience with multiple themes — using a fully custom theme mode. 🎨🌈
+
+- **Modern Dark UI**: Enjoy a beautifully designed dark interface with soft blur, rounded elements, and a minimal aesthetic. 🌑✨
 
 ---
 
