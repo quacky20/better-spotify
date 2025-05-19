@@ -31,6 +31,37 @@ Moodify is a sleek, AI-powered web app that reimagines Spotify — tailored to y
 
 ---
 
+## 🎥 Demo & Screenshots
+
+### 📸 Desktop Screenshots
+#### 🎧 Now Playing Interface
+![Interface](./Screenshots/interface.png)
+
+#### 🤖 Mood-Based Recommendations
+![Suggestion](./Screenshots/suggestion.png)
+
+#### 🔍 Song Search Page
+![Search](./Screenshots/search.png)
+
+#### ⚙️ Settings & Theme Selection
+![Settings](./Screenshots/settings.png)
+
+### 📱 Mobile Screenshots
+
+#### 🎧 Now Playing on Mobile
+![Interface](./Screenshots/interface_phone.png)
+
+#### 🤖 AI Suggestions on Mobile
+![Suggestion](./Screenshots/suggestion_ph.png)
+
+#### 📝 Lyrics View on Mobile
+![Lyrics](./Screenshots/lyrics_phone.png)
+
+#### ⚙️ Settings Panel on Mobile
+![Settings](./Screenshots/settings_ph.png)
+
+---
+
 ## ⚙️ **Setup Instructions**
 
 To get started with this project, follow the steps below:
